@@ -92,7 +92,7 @@ int checkForOctalDigit(char digit)
 
 int checkForHexDigit(char digit)
 {
-  for(int i=0;i<24;i++)
+  for(int i=0;i<22;i++)
   {
     if(HEX[i]==digit)
     {
@@ -192,6 +192,30 @@ int isOctalNumber(char word[], int length)
   }
 }
 
+int isHexNumber(char word[], int length)
+{
+  if(word[0]==HEX[0]&&(word[1]==HEX[23]||word[1]==HEX[22]))
+  {
+    for(int i=2;i<length;i++)
+    {
+      if(!checkForHexDigit(word[i]))
+      {
+        return 0;
+      }
+    }
+    char sentence[50];
+    strcpy(sentence, "Hexadecimal Number [");
+    strcat(sentence, word);
+    strcat(sentence, "]");
+    printToken(sentence);
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
 int main (int argc, char **argv){
 
   int result=0;
@@ -211,6 +235,11 @@ int main (int argc, char **argv){
     //next word
   }
   result = isOctalNumber(argv[1],3);
+  if(result)
+  {
+    //next word
+  }
+  result = isHexNumber(argv[1],5);
   if(result)
   {
     //next word
