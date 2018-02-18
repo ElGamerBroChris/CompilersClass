@@ -10,18 +10,18 @@ The things it must identify are:
   -Logic operators [IMPLEMENTED]
   -identifiers [IMPLEMENTED]
 
-  -natural numbers
-  -octal numbers
-  -hex numbers
-  -float point numbers
+  -natural numbers[IMPLEMENTED]
+  -octal numbers[IMPLEMENTED]
+  -hex numbers[IMPLEMENTED]
+  -float point numbers[IMPLEMENTED]
   
-  -comments (ignore them)
-  -Delimitators (won't check if they're complete)
-  -Arithmetic signs
-  -Relationship operators
-  -punctuation
-  -assign operator
-  -blank spaces (ignore them)
+  -comments (ignore them)[IMPLEMENTED]
+  -Delimitators (won't check if they're complete)[IMPLEMENTED]
+  -Arithmetic signs[IMPLEMENTED]
+  -Relationship operators[IMPLEMENTED]
+  -punctuation[IMPLEMENTED]
+  -assign operator[IMPLEMENTED]
+  -blank spaces (ignore them)[IMPLEMENTED]
 
   It must display the results.
 */
@@ -50,8 +50,6 @@ I simplified it for what I have in mind for my solution
 const char RELATIONAL[6] = {'=','!','<','>'};
 const char PUNCTUATION[3] = {',',';','.'};
 const char DELIMITATORS[4] = {'(',')','[',']'};
-
-const char UNDERSCORE = '_';
 
 
 void printToken(char sentence[])
@@ -130,7 +128,7 @@ int checkForSymbol(char symbol)
       return 3;
     }
   }
-  for(int i=0;i<2;i++)
+  for(int i=0;i<3;i++)
   {
     if(symbol==PUNCTUATION[i])
     {
@@ -378,6 +376,7 @@ int checkLexeme(char * word, int length, int * error)
     *error=0;
     return 1;
   }
+  result = isFloatNumber(word,length);
   if(result)
   {
     *error=0;
@@ -387,15 +386,22 @@ int checkLexeme(char * word, int length, int * error)
   return 0;
 }
 
-int main (int argc, char **argv){
+int main (int argc, char **argv)
+{
   FILE *fp;
   char line[MAXCHAR];
   char filename[100];
-  char add[2];
   strcpy(filename,argv[1]);
+
+  char add[2];
   char word[20];
+  
   int lineNumber=1;
-  int InComment,error=0;
+  int InComment=0,
+      error=0,
+      period=0,
+      startWithNumber=0,
+      sign=0;
 
   add[1]='\0';
  
@@ -412,6 +418,9 @@ int main (int argc, char **argv){
     InComment=0;
     while(line[end]!='\n'&&!InComment&&!error)
     {
+      period=0;
+      startWithNumber=0;
+      sign=0;
       if(end>0)
       {
         end++;
@@ -420,12 +429,24 @@ int main (int argc, char **argv){
 
       word[0]='\0';
       result=checkForSymbol(line[end]);
+      startWithNumber=checkForDecimalDigit(line[end]);
       while(!result)
       {
         add[0]=line[end];
         strcat(word, add);
         end++;
         result=checkForSymbol(line[end]);
+        if(!period&&startWithNumber&&line[end]=='.')
+        {
+          period++;
+          result=0;
+        }
+        else if(!sign&&period&&(line[end]=='+'||line[end]=='-'))
+        {
+          sign++;
+          result=0;
+        }
+        
       }
       switch(result)
       {
