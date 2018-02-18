@@ -48,7 +48,7 @@ since the second character will always be = if there is one
 I simplified it for what I have in mind for my solution
 */
 const char RELATIONAL[6] = {'=','!','<','>'};
-const char PUNCTUATION[3] = {'.',',',';'};
+const char PUNCTUATION[3] = {',',';','.'};
 const char DELIMITATORS[4] = {'(',')','[',']'};
 
 const char UNDERSCORE = '_';
@@ -130,7 +130,7 @@ int checkForSymbol(char symbol)
       return 3;
     }
   }
-  for(int i=0;i<3;i++)
+  for(int i=0;i<2;i++)
   {
     if(symbol==PUNCTUATION[i])
     {
@@ -262,38 +262,142 @@ int isHexNumber(char word[], int length)
   }
 }
 
-int main (int argc, char **argv){
+int isFloatNumber(char word[],int length)
+{
+  int period=0;
+  int exponent=0;
+  for(int i=0;i<length;i++)
+  {
+    if(checkForDecimalDigit(word[i])||word[i]=='.'||word[i]=='e'||word[i]=='+'||word[i]=='-')
+    {
+      if(word[i]=='.'&&!period)
+      {
+        i++;
+        if(i<length)
+        {
+          if(!checkForDecimalDigit(word[i]))
+          {
+            return 0;
+          }
+          period++;
+        }
+        else
+        {
+          return 0;
+        }
+      }
+      else if(word[i]=='.'&&period)
+      {
+        return 0;
+      }
+      if(word[i]=='e'&&!exponent)
+      {
+        i++;
+        if(i<length)
+        {
+          if(!(word[i]=='+'||word[i]=='-'))
+          {
+            return 0;
+          }
+          i++;
+          if(i<length)
+          {
+            if(!checkForDecimalDigit(word[i]))
+            {
+              return 0;
+            }
+            exponent++;
+          }
+          else
+          {
+            return 0;
+          }
+        }
+        else
+        {
+          return 0;
+        }
+      }
+      else if(word[i]=='e'&&exponent)
+      {
+        return 0;
+      }
+      if((word[i]=='+'||word[i]=='-')&&!exponent)
+      {
+        return 0;
+      }
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  char sentence[50];
+  strcpy(sentence, "Float Number [");
+  strcat(sentence, word);
+  strcat(sentence, "]");
+  printToken(sentence);
 
-  /*int result=0;
-  result = isKeyword(argv[1]);
-  if(result)
+  return 1;
+}
+
+int checkLexeme(char * word, int length, int * error)
+{
+  int result=0;
+  if(word[0]=='\0')
   {
-    //next word
+    return 1;
   }
-  result = isIdentifier(argv[1]);
+  result = isKeyword(word);
   if(result)
   {
-    //next word
+    *error=0;
+    return 1;
   }
-  result = isDecimalNumber(argv[1],3);
+  result = isIdentifier(word);
   if(result)
   {
-    //next word
+    *error=0;
+    return 1;
   }
-  result = isOctalNumber(argv[1],3);
+  result = isDecimalNumber(word,length);
   if(result)
   {
-    //next word
+    *error=0;
+    return 1;
   }
-  result = isHexNumber(argv[1],5);
+  result = isOctalNumber(word,length);
   if(result)
   {
-    //next word
-  }*/
+    *error=0;
+    return 1;
+  }
+  result = isHexNumber(word,length);
+  if(result)
+  {
+    *error=0;
+    return 1;
+  }
+  if(result)
+  {
+    *error=0;
+    return 1;
+  }
+  *error=1;
+  return 0;
+}
+
+int main (int argc, char **argv){
   FILE *fp;
   char line[MAXCHAR];
-  char* filename;
+  char filename[100];
+  char add[2];
   strcpy(filename,argv[1]);
+  char word[20];
+  int lineNumber=1;
+  int InComment,error=0;
+
+  add[1]='\0';
  
   fp = fopen(filename, "r");
   if (fp == NULL)
@@ -302,16 +406,164 @@ int main (int argc, char **argv){
     return 1;
   }
   
-  while (fgets(line, MAXCHAR, fp) != NULL)
+  while ((fgets(line, MAXCHAR, fp) != NULL)&&!error)
   {
     int result=0,begin=0,end=0;
-    result=checkForSymbol(line[end]);
-    while(!result)
+    InComment=0;
+    while(line[end]!='\n'&&!InComment&&!error)
     {
-      end++;
+      if(end>0)
+      {
+        end++;
+        begin=end;  
+      }
+
+      word[0]='\0';
       result=checkForSymbol(line[end]);
+      while(!result)
+      {
+        add[0]=line[end];
+        strcat(word, add);
+        end++;
+        result=checkForSymbol(line[end]);
+      }
+      switch(result)
+      {
+        case 1:
+          checkLexeme(word,end-begin,&error);   
+          break;
+
+        case 2:
+          checkLexeme(word,end-begin,&error);
+          if(line[end]==ARITHMETICS[3]&&line[end+1]==ARITHMETICS[3])
+          {
+            InComment=1;
+          }
+          else
+          {
+            char sentence[50];
+            add[0]=line[end];
+            strcpy(sentence, "Arithmetic Identifier [");
+            strcat(sentence, add);
+            strcat(sentence, "]");
+            printToken(sentence);
+          }
+          break;
+
+        case 3:
+          checkLexeme(word,end-begin,&error);
+          if(line[end]==RELATIONAL[0]&&line[end+1]!=RELATIONAL[0])
+          {
+            char sentence[50];
+            add[0]='=';
+            strcpy(sentence, "Assignment [");
+            strcat(sentence, add);
+            strcat(sentence, "]");
+            printToken(sentence);
+          }
+          else if(line[end]==RELATIONAL[0]&&line[end+1]==RELATIONAL[0])
+          {
+            char sentence[50];
+            strcpy(sentence, "Equals Operator [==]");
+            printToken(sentence);
+            end++;
+          }
+          else if(line[end]==RELATIONAL[1])
+          {
+            if(line[end+1]!=RELATIONAL[0])
+            {
+              printf("Error in %d, couldn't identify %s\n",lineNumber,word);
+              error=1;
+            }
+            else
+            {
+              char sentence[50];
+              strcpy(sentence, "Not Equals Operator [!=]");
+              printToken(sentence);
+              end++;
+            }
+          }
+          else if(line[end]==RELATIONAL[2])
+          {
+            if(line[end+1]!=RELATIONAL[0])
+            {
+              char sentence[50];
+              strcpy(sentence, "Lesser Than Operator [<]");
+              printToken(sentence);
+            }
+            else
+            {
+              char sentence[50];
+              strcpy(sentence, "Lesser Or Equals Than Operator [<=]");
+              printToken(sentence);
+              end++;
+            }
+          }
+          else if(line[end]==RELATIONAL[3])
+          {
+            if(line[end+1]!=RELATIONAL[0])
+            {
+              char sentence[50];
+              strcpy(sentence, "Greater Than Operator [>]");
+              printToken(sentence);
+            }
+            else
+            {
+              char sentence[50];
+              strcpy(sentence, "Greater Or Equals Than Operator [>=]");
+              printToken(sentence);
+              end++;
+            }
+          }
+          break;
+        
+        case 4:
+          checkLexeme(word,end-begin,&error);
+          if(line[end]==',')
+          {
+            printf("Coma [,]\n");
+          }
+          else if(line[end]==';')
+          {
+            printf("Semicolon [;]\n");
+          }
+          else if(line[end]=='.')
+          {
+            printf("Period [.]\n");
+          }
+          break;
+
+        case 5:
+          checkLexeme(word,end-begin,&error);
+          if(line[end]=='(')
+          {
+            printf("Left Parenthesis [(]\n");
+          }
+          else if(line[end]==')')
+          {
+            printf("Right Parenthesis [)]\n");
+          }
+          if(line[end]=='[')
+          {
+            printf("Left Bracket [[]\n");
+          }
+          if(line[end]==']')
+          {
+            printf("Right Bracket []]\n");
+          }
+          break;
+      }
+      /*if(!checkLexeme(word,end-begin))
+      {
+        printf("end is: %d\n",end);
+        printf("begin is: %d\n",begin);
+      }*/
     }
-    
+    if(error)
+    {
+      printf("Error in line %d\n", lineNumber);
+    }
+    lineNumber++;
   }
   fclose(fp);
 

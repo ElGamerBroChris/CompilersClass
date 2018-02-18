@@ -1,6 +1,6 @@
 //Comment
 begin
-x=098;		//assigns x
+x=077;		//assigns x
 y=0x3F5A;	//comment
 z=0.32e-4;	//another comment
 if x + 34 > y or z == 0.4 then print(x,y);
