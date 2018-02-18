@@ -1,6 +1,7 @@
 /*
 chrisME1320
 A01223255
+LexicalAnalyzer
 
 This lexical analyzer must be able to analyze a file for all its tokens and point out an error if a word couldn't be identified.
 
@@ -29,6 +30,8 @@ The things it must identify are:
 #include <stdio.h>
 #include <string.h>
 
+#define MAXCHAR 1000
+
 const char ALPHABET[53] =
 {
   'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
@@ -38,16 +41,18 @@ const char HEX[24]={'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e',
 
 const char KEYWORDS[10][8] = {"program","var","begin","end","if","then","else","and","or","not"};
 
+const char BLANKS[4]={' ','\t','\n'};
 const char ARITHMETICS[4] = { '+','-','*','/'};
 /*
 since the second character will always be = if there is one
 I simplified it for what I have in mind for my solution
 */
-const char RELATIONAL[6][2] = {'=','!','<','>'};
+const char RELATIONAL[6] = {'=','!','<','>'};
 const char PUNCTUATION[3] = {'.',',',';'};
 const char DELIMITATORS[4] = {'(',')','[',']'};
 
 const char UNDERSCORE = '_';
+
 
 void printToken(char sentence[])
 {
@@ -101,6 +106,47 @@ int checkForHexDigit(char digit)
   }
   return 0;
 }
+
+int checkForSymbol(char symbol)
+{
+  for(int i=0;i<3;i++)
+  {
+    if(symbol==BLANKS[i])
+    {
+      return 1;
+    }
+  }
+  for(int i=0;i<4;i++)
+  {
+    if(symbol==ARITHMETICS[i])
+    {
+      return 2;
+    }
+  }
+  for(int i=0;i<4;i++)
+  {
+    if(symbol==RELATIONAL[i])
+    {
+      return 3;
+    }
+  }
+  for(int i=0;i<3;i++)
+  {
+    if(symbol==PUNCTUATION[i])
+    {
+      return 4;
+    }
+  }
+  for(int i=0;i<4;i++)
+  {
+    if(symbol==DELIMITATORS[i])
+    {
+      return 5;
+    }
+  }
+  return 0;
+}
+
 int isKeyword(char word[])
 {
   for(int i=0;i<10;i++)
@@ -218,7 +264,7 @@ int isHexNumber(char word[], int length)
 
 int main (int argc, char **argv){
 
-  int result=0;
+  /*int result=0;
   result = isKeyword(argv[1]);
   if(result)
   {
@@ -243,7 +289,31 @@ int main (int argc, char **argv){
   if(result)
   {
     //next word
+  }*/
+  FILE *fp;
+  char line[MAXCHAR];
+  char* filename;
+  strcpy(filename,argv[1]);
+ 
+  fp = fopen(filename, "r");
+  if (fp == NULL)
+  {
+    printf("Could not open file %s",filename);
+    return 1;
   }
+  
+  while (fgets(line, MAXCHAR, fp) != NULL)
+  {
+    int result=0,begin=0,end=0;
+    result=checkForSymbol(line[end]);
+    while(!result)
+    {
+      end++;
+      result=checkForSymbol(line[end]);
+    }
+    
+  }
+  fclose(fp);
 
   return 0;
 }
