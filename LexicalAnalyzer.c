@@ -4,26 +4,6 @@ A01223255
 LexicalAnalyzer
 
 This lexical analyzer must be able to analyze a file for all its tokens and point out an error if a word couldn't be identified.
-
-The things it must identify are:
-  -Reserved identifiers [IMPLEMENTED]
-  -Logic operators [IMPLEMENTED]
-  -identifiers [IMPLEMENTED]
-
-  -natural numbers[IMPLEMENTED]
-  -octal numbers[IMPLEMENTED]
-  -hex numbers[IMPLEMENTED]
-  -float point numbers[IMPLEMENTED]
-  
-  -comments (ignore them)[IMPLEMENTED]
-  -Delimitators (won't check if they're complete)[IMPLEMENTED]
-  -Arithmetic signs[IMPLEMENTED]
-  -Relationship operators[IMPLEMENTED]
-  -punctuation[IMPLEMENTED]
-  -assign operator[IMPLEMENTED]
-  -blank spaces (ignore them)[IMPLEMENTED]
-
-  It must display the results.
 */
 
 
@@ -574,11 +554,6 @@ int main (int argc, char **argv)
           }
           break;
       }
-      /*if(!checkLexeme(word,end-begin))
-      {
-        printf("end is: %d\n",end);
-        printf("begin is: %d\n",begin);
-      }*/
     }
     if(error)
     {
