@@ -1,0 +1,17 @@
+if ( number * id + id ) < id then id := number ; repeat read id ; until id = number ; else write id ; end ;  
+
+/*
+Only the first line must be edited to test the SyntaxAnalyzer.
+There must be a space from token to token and a space after the final token.
+
+The following one is written in multiple lines for readability, it's not read by the program ever
+
+if ( number * id + id ) < id then
+		id := number ;
+		repeat read id ;
+		until id = number ;
+else
+		write id ;
+end ;
+
+*/

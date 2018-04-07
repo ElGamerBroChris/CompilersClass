@@ -384,7 +384,7 @@ int main (int argc, char **argv)
       sign=0;
 
   add[1]='\0';
- 
+
   fp = fopen(filename, "r");
   if (fp == NULL)
   {
