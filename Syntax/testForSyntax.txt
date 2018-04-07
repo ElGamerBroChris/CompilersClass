@@ -3,6 +3,15 @@ if ( number * id + id ) < id then id := number ; repeat read id ; until id = num
 /*
 Only the first line must be edited to test the SyntaxAnalyzer.
 There must be a space from token to token and a space after the final token.
+The tokens have to be the ones defined:
+	-if, then, else, end
+	-repeat, until
+	-write
+	-read
+	-:=
+	-id, number, (, )
+	-<,>,<=,>=,=
+	-+, -, *, /
 
 The following one is written in multiple lines for readability, it's not read by the program ever
 
